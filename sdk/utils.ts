@@ -9,8 +9,17 @@ import { Transaction } from './transaction'
 import { Receipt } from './receipt'
 import { TxEventBlock } from './transaction.event'
 import { Block } from './block'
+import { ethers } from '.'
 
-export const getFortaConfig: () => FortaConfig = () => {
+export const getEthersProvider = () => {
+  return new ethers.providers.JsonRpcProvider(getJsonRpcUrl())
+}
+
+export const getEthersBatchProvider = () => {
+  return new ethers.providers.JsonRpcBatchProvider(getJsonRpcUrl())
+}
+
+const getFortaConfig: () => FortaConfig = () => {
   let config = {}
   // try to read from global config
   const globalConfigPath = join(os.homedir(), '.forta', 'forta.config.json')
@@ -35,7 +44,7 @@ export const getJsonRpcUrl = () => {
   
   // else, use the rpc url from forta.config.json
   const { jsonRpcUrl } = getFortaConfig()
-  if (!jsonRpcUrl) throw new Error('no jspnRpcUrl found')
+  if (!jsonRpcUrl) throw new Error('no jsonRpcUrl found')
   if (!jsonRpcUrl.startsWith("http")) throw new Error('jsonRpcUrl must begin with http(s)')
   return jsonRpcUrl
 }
@@ -90,4 +99,13 @@ export const keccak256 = (str: string) => {
   const hash = new Keccak(256)
   hash.update(str)
   return `0x${hash.digest('hex')}`
+}
+
+let IS_PRIVATE_FINDINGS = false
+export const setPrivateFindings = (isPrivate: boolean) => {
+  IS_PRIVATE_FINDINGS = isPrivate
+}
+
+export const isPrivateFindings = () => {
+  return IS_PRIVATE_FINDINGS
 }

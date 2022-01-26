@@ -1,4 +1,5 @@
 import { AwilixContainer } from 'awilix';
+import { Cache } from 'flat-cache';
 import { CommandHandler } from '../..';
 import { assertExists } from '../../utils';
 import { RunBlock } from './run.block';
@@ -9,15 +10,13 @@ import { RunTransaction } from './run.transaction';
 import { RunProdServer } from './server';
 
 export default function provideRun(
-  container: AwilixContainer
+  container: AwilixContainer,
+  cache: Cache
 ): CommandHandler {
   assertExists(container, 'container')
+  assertExists(cache, 'cache')
 
   return async function run(cliArgs: any) {
-    // invoke process.exit() for short-lived functions, otherwise a web3 websocket connection
-    // can prevent the process from completing
-    let isShortLived = cliArgs.tx || cliArgs.block || cliArgs.range || cliArgs.file
-
     // we manually inject the run functions here (instead of through the provide function above) so that
     // we get RUNTIME errors if certain configuration is missing for that run function e.g. jsonRpcUrl
     if (cliArgs.tx) {
@@ -40,6 +39,12 @@ export default function provideRun(
       await runLive()
     }
 
+    // persist any cached blocks/txs/traces to disk
+    cache.save(true) // true = dont prune keys not used in this run
+
+    // invoke process.exit() for short-lived functions, otherwise
+    // a child process (i.e. python agent process) can prevent commandline from returning
+    let isShortLived = cliArgs.tx || cliArgs.block || cliArgs.range || cliArgs.file
     if (isShortLived) process.exit()
   }
 }

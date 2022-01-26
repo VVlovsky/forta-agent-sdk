@@ -1,13 +1,24 @@
+import { ethers } from "ethers"
 import { Finding, FindingSeverity, FindingType } from "./finding"
 import { BlockEvent } from "./block.event"
 import { Block } from "./block"
-import { TransactionEvent, TxEventBlock } from "./transaction.event"
-import { createBlockEvent, createTransactionEvent, getFortaConfig, getJsonRpcUrl } from "./utils"
+import { TransactionEvent, TxEventBlock, LogDescription } from "./transaction.event"
 import { Log, Receipt } from "./receipt"
 import { Trace, TraceAction, TraceResult } from "./trace"
 import { Transaction } from "./transaction"
+import { 
+  createBlockEvent, 
+  createTransactionEvent, 
+  getJsonRpcUrl, 
+  getEthersProvider, 
+  getEthersBatchProvider, 
+  keccak256,
+  setPrivateFindings,
+  isPrivateFindings
+} from "./utils"
 
 interface FortaConfig {
+  agentId?: string
   jsonRpcUrl?: string
   ipfsGatewayUrl?: string
   ipfsGatewayAuth?: string
@@ -54,13 +65,19 @@ export {
   Transaction,
   Receipt,
   Log,
+  LogDescription,
   Trace,
   TraceAction,
   TraceResult,
   EventType,
   Network,
-  getFortaConfig,
   getJsonRpcUrl,
   createTransactionEvent,
-  createBlockEvent
+  createBlockEvent,
+  getEthersProvider,
+  getEthersBatchProvider,
+  ethers,
+  keccak256,
+  setPrivateFindings,
+  isPrivateFindings
  }
